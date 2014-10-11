@@ -209,7 +209,8 @@ sub new {
 
 	# Seperate the Text::CSV attributes
 	unless ( Params::Util::_HASH0($self->{csv_attr}) ) {
-		$self->{csv_attr} = {};
+		$self->{csv_attr} = {binary => 1};  # Suggested by Text::CSV_XS docs to always be on
+		# XXX it would be nice to not have this list hard-coded.
 		foreach ( qw{quote_char eol escape_char sep_char binary always_quote} ) {
 			next unless exists $self->{$_};
 			$self->{csv_attr}->{$_} = delete $self->{$_};
@@ -230,21 +231,7 @@ sub new {
 	# Handle automatic field names
 	if ( Params::Util::_STRING($self->{names}) and $self->{names} ) {
 		# Grab the first line
-		my $line = $self->_getline;
-		unless ( defined $line ) {
-			Carp::croak("Failed to get header line from CSV");
-		}
-
-		# Parse the line into columns
-		unless ( $self->{csv_xs}->parse($line) ) {
-			Carp::croak(
-				"Failed to parse header line from CSV: "
-				. $self->{csv_xs}->error_input
-			);
-		}
-
-		# Turn the array ref into a hash if needed
-		$self->{names} = [ $self->{csv_xs}->fields ];
+		$self->{names} = $self->_getline;
 	}
 
 	# Check names
@@ -303,17 +290,11 @@ sub fetch {
 
 	# The filter can skip rows,
 	# iterate till we get something.
-	while ( defined(my $line = $self->_getline) ) {
-		# Parse the line into columns
-		unless ( $self->{csv_xs}->parse($line) ) {
-			$self->{errstr} = "Failed to parse row $self->{row}";
-			return undef;
-		}
-
+	while ( my $row = $self->_getline ) {
 		# Turn the array ref into a hash if needed
 		my $rv    = undef;
 		my $names = $self->{names};
-		my @cols  = $self->{csv_xs}->fields;
+		my @cols  = @$row;
 		if ( $names ) {
 			$rv = {};
 			foreach ( 0 .. $#$names ) {
@@ -350,17 +331,10 @@ sub _getline {
 	my $self = shift;
 	$self->{errstr} = '';
 
-	# Fetch the next file line
-	my $handle = $self->{handle};
-	my $line   = <$handle>;
-	unless ( defined $line ) {
-		$self->{errstr} = $handle->eof ? '' : $!;
-		return undef;
-	}
-
-	# Parse the line into columns
-	$self->{row}++;
-	return $line;
+	my $row = $self->{csv_xs}->getline( $self->{handle} );
+	$self->{row}++ if defined $row;
+	$self->{savedrow} = $row;
+	return $row;
 }
 
 =pod
@@ -406,7 +380,9 @@ to the underlying L<Text::CSV_XS> object.
 =cut
 
 sub string {
-	shift->{csv_xs}->string(@_);
+	my $self = shift;
+	$self->{csv_xs}->combine(@{$self->{savedrow}});
+	$self->{csv_xs}->string;
 }
 
 =pod
@@ -436,7 +412,7 @@ to the underlying L<Text::CSV_XS> object. It shows the actual row as an array.
 =cut
 
 sub fields {
-	shift->{csv_xs}->fields;
+	@{shift()->{savedrow} || []};
 }
 
 =pod

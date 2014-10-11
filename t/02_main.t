@@ -8,13 +8,15 @@ BEGIN {
 	$^W = 1;
 }
 
-use Test::More tests => 73;
+use Test::More tests => 83;
 use File::Spec::Functions ':ALL';
 use Parse::CSV;
 
 my $readfile = catfile( 't', 'data', 'simple.csv' );
 ok( -f $readfile, "$readfile exists" );
 
+my $readfile2 = catfile( 't', 'data', 'newlines.csv' );
+ok( -f $readfile2, "$readfile2 exists" );
 
 
 
@@ -57,6 +59,29 @@ SCOPE: {
 	is( $csv->errstr, '', '->errstr returns "" still' );
 }
 
+SCOPE: {
+	my $csv = Parse::CSV->new(
+		file => $readfile2,
+	);
+
+	# Pull the first line
+	my $line = $csv->fetch;
+	is_deeply( $line, [ qw{a b c d e} ], '->fetch returns as expected' );
+	is( $csv->row,    1,  '->row returns 1' );
+	is( $csv->errstr, '', '->errstr returns ""' );
+
+	# Pull the second line
+	$line = $csv->fetch;
+	is_deeply( $line, [ "this", "\nis\n", "also", "a", "sample with some\nembedded newlines\nin it" ], '->fetch returns as expected' );
+	is( $csv->row,    2,  '->row returns 2' );
+	is( $csv->errstr, '', '->errstr returns ""' );
+
+	# Pull the third line
+	$line = $csv->fetch;
+	is_deeply( $line, [ qw{1 2 3 4.5 5} ], '->fetch returns as expected' );
+	is( $csv->row,    3,  '->row returns 3' );
+	is( $csv->errstr, '', '->errstr returns ""' );
+}
 
 
 
