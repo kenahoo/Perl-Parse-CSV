@@ -109,7 +109,7 @@ use Params::Util 1.00 ();
 
 use vars qw{$VERSION};
 BEGIN {
-	$VERSION = '2.01';
+	$VERSION = '2.02';
 }
 
 
@@ -475,6 +475,8 @@ Adam Kennedy E<lt>adamk@cpan.orgE<gt>
 =head1 CONTRIBUTORS
 
 Uwe Sarnowski E<lt>uwes@cpan.orgE<gt>
+
+Ken Williams E<lt>kwilliams@cpan.orgE<gt>
 
 =head1 SEE ALSO
 
