@@ -1,11 +1,17 @@
 Revision history for Perl extension Parse-CSV
 
-	- Now accepts embedded newlines in fields.  Previously parsing
+{{$NEXT}}
+     	- Now accepts embedded newlines in fields.  Previously parsing
           would fail when embedded newlines were encountered. [Ken
           Williams]
+
 	- Now sets 'binary => 1' by default, as recommended by the
           Text::CSV_XS docs.  This also allows multi-line data by
           default. [Ken Williams]
+	  
+	- The distribution now lives on GitHub, is controlled by
+          Dist::Zilla, and this version was released by Ken Williams.
+          Feel free to fork it or send pull requests or whatever.
 
 2.01 Sun 4 Nov 2012
 	- Upgrading to Module::Install 1.06
