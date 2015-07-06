@@ -1,6 +1,8 @@
 Revision history for Perl extension Parse-CSV
 
 {{$NEXT}}
+
+2.03      2015-07-06 00:03:56 America/Chicago
      	- Now accepts embedded newlines in fields.  Previously parsing
           would fail when embedded newlines were encountered. [Ken
           Williams]
