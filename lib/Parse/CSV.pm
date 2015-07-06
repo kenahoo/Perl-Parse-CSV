@@ -1,3 +1,4 @@
+use strict;
 package Parse::CSV;
 
 =pod
@@ -101,19 +102,10 @@ To signal an error, throw an exception
 =cut
 
 use 5.005;
-use strict;
 use Carp              ();
 use IO::File     1.13 ();
 use Text::CSV_XS 0.80 ();
 use Params::Util 1.00 ();
-
-use vars qw{$VERSION};
-BEGIN {
-	$VERSION = '2.02';
-}
-
-
-
 
 
 #####################################################################
