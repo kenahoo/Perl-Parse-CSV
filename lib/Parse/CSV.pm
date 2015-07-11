@@ -284,24 +284,19 @@ sub fetch {
 	# iterate till we get something.
 	while ( my $row = $self->_getline ) {
 		# Turn the array ref into a hash if needed
-		my $rv    = undef;
-		my $names = $self->{names};
-		my @cols  = @$row;
-		if ( $names ) {
+		my $rv;
+		if ( $self->{names} ) {
 			$rv = {};
-			foreach ( 0 .. $#$names ) {
-				$rv->{ $names->[$_] } = $cols[$_];
-			}
+			@{$rv}{@{$self->{names}}} = @$row;
 		} else {
-			$rv = \@cols;
+			$rv = $row;
 		}
 
 		# Just return for simple uses
 		return $rv unless $self->{filter};
 
 		# Filter if needed
-		local $_ = $rv;
-		$rv = eval { $self->{filter}->() };
+		$rv = eval { local $_ = $rv; $self->{filter}->() };
 		if ( $@ ) {
 			# Handle filter errors
 			$self->{errstr} = "Filter error: $@";
