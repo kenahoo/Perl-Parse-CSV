@@ -328,7 +328,7 @@ sub _getline {
 
 =head2 row
 
-The C<row> method returns the current row of the CSV file.
+The C<row> method returns the line number of the most-recently-read row of the CSV file.
 
 This is a one-based count, so when you first create the parser,
 the value of C<row> will be zero (unless you are using
