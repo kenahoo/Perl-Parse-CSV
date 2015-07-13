@@ -288,6 +288,16 @@ following.
       # Handle errors...
   }
 
+NOTE: currently the L<fields> and L<string> methods can be used to
+access the most recently-read row (as an array ref or a formatted
+string) after using C<fetch>.  However, this contradicts the
+documentation for L<Text::CSV_XS>, which says those methods should be
+"meaningless" after calling C<getline> (which C<fetch()> internally
+uses to read the input).  Keeping the current behavior also incurs a
+speed & memory penalty.  Therefore, relying on L<fields> and L<string>
+to return the current data after C<fetch()> is deprecated and will
+(probably) be removed in a future release.
+
 =cut
 
 sub fetch {
@@ -377,6 +387,11 @@ sub combine {
 The C<string> method is provided as a convenience, and is passed through
 to the underlying L<Text::CSV_XS> object.
 
+NOTE: relying on L<string> to return the current data after C<fetch()>
+is deprecated and will (probably) be removed in a future release.
+Only rely on its value after C<combine()>.  See similar warnings in
+L<fetch()> and L<fields()>.
+
 =cut
 
 sub string {
@@ -408,6 +423,11 @@ sub print {
 
 The C<fields> method is provided as a convenience, and is passed through
 to the underlying L<Text::CSV_XS> object. It shows the actual row as an array.
+
+NOTE: relying on L<fields> to return the current data after C<fetch()>
+is deprecated and will (probably) be removed in a future release.
+Only rely on its value after C<combine()>.  See similar warnings in
+L<fetch()> and L<string()>.
 
 =cut
 
