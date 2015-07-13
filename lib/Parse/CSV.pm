@@ -70,16 +70,15 @@ or drop records you don't need.
 =head2 Writing Filters
 
 A L<Parse::CSV> filter is a subroutine reference that is passed the raw
-record as C<$_>, and should C<return> the alternative or modified record
-to return to the user.
+record as C<$_>, and should C<return> the alternative or modified record.
 
 The null filter (does not modify or drop any records) looks like the
 following.
 
   sub { $_ };
 
-A filter which reversed the order of the columns (assuming they are
-passed as an array) might look like the following.
+A filter which reversed the order of the columns (assuming the parser
+is in array mode) might look like the following.
 
   sub { return [ reverse @$_ ] };
 
@@ -87,7 +86,7 @@ To drop the record, you should return C<undef> from the filter. The
 parser will then keep pulling and parsing new records until one
 passes the filter.
 
-  # Only keep records where foo is true
+  # Only keep records where the 'foo' field is true
   sub { $_->{foo} ? $_ : undef }
 
 To signal an error, throw an exception
@@ -115,18 +114,24 @@ use Params::Util 1.00 ();
 
 =head2 new
 
-The C<new> constructor creates and initialise a new CSV parser.
+The C<new> constructor creates and initialises a new CSV parser.  It
+returns a new L<Parse::CSV> object, or throws an exception (dies) on
+error.  It accepts a number of params:
 
-It takes a number of params.
+=over 4
 
-To specify the CSV data source, you should provide either the C<file>
+=item C<file>
+
+=item C<handle>
+
+To specify the CSV data source, provide either the C<file>
 param, which should be the name of the file to read, or the C<handle>
 param, which should be a file handle to read instead.
 
-The actual parsing is done using L<Text::CSV_XS>. Any of its
-constructor/parsing params can also be provided to this C<new> method,
-and they will be passed on.
+=item C<csv_attr>
 
+Any parameter for L<Text::CSV_XS>'s constructor can also be provided
+to this C<new> method, and they will be passed on to it.
 Alternatively, they can be passed as a single C<HASH> reference as the
 C<csv_attr> param. For example:
 
@@ -138,24 +143,32 @@ C<csv_attr> param. For example:
       },
   );
 
-An optional C<names> param can be provided, which should be an array
-reference containing the names of the columns in the CSV file.
+=item C<names>
+
+An optional C<names> param can be provided, which should either be an
+array reference containing the names of the columns:
 
   $parser = Parse::CSV->new(
       file  => 'file.csv',
       names => [ 'col1', 'col2', 'col3' ],
   );
 
-If the C<names> param is provided, the parser will map the columns to a
+or a true value that's not a reference, indicating that the column
+names will be read from the first line of the input:
+
+  $parser = Parse::CSV->new(
+      file  => 'file.csv',
+      names => 1,
+  );
+
+If the C<names> param is provided, the parser will map each line to a
 hash where the keys are the field names provided, and the values are the
 values found in the CSV file.
 
 If the C<names> param is B<not> provided, the parser will return simple
 array references of the columns.
 
-If the C<names> param is true and not a reference, the names will be
-automatically determined by reading the first line of the CSV file and
-using those values as the field names.
+=item C<filter>
 
 The optional C<filter> param will be used to filter the records if
 provided. It should be a C<CODE> reference or any otherwise callable
@@ -163,7 +176,7 @@ scalar, and each value parsed (either array reference or hash reference)
 will be passed to the filter to be changed or converted into an object,
 or whatever you wish.
 
-Returns a new L<Parse::CSV> object, or throws an exception (dies) on error.
+=back
 
 =cut
 
