@@ -1,6 +1,11 @@
 Revision history for Perl extension Parse-CSV
 
 {{$NEXT}}
+	- Fixed a regression that resulted in some failures in the
+          Parse::CSV::Colnames distribution [Spotted by H.Merijn Brand]
+	- Deprecate calling fields()/string() after fetch() [bc5453f]
+	- Various doc clarifications/improvements [bddba50]
+	- Simplify processing & reduce copying in fetch() [b47286b]
 
 2.03      2015-07-06 00:03:56 America/Chicago
      	- Now accepts embedded newlines in fields.  Previously parsing
