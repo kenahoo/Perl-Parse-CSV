@@ -396,7 +396,10 @@ L<fetch()> and L<fields()>.
 
 sub string {
 	my $self = shift;
-	$self->{csv_xs}->combine(@{$self->{savedrow}});
+	if ($self->{savedrow}) {
+	  $self->combine(@{$self->{savedrow}});
+	  delete $self->{savedrow};
+	}
 	$self->{csv_xs}->string;
 }
 
@@ -432,7 +435,12 @@ L<fetch()> and L<string()>.
 =cut
 
 sub fields {
-	@{shift()->{savedrow} || []};
+	my $self = shift;
+	if ($self->{savedrow}) {
+	  $self->combine(@{$self->{savedrow}});
+	  delete $self->{savedrow};
+	}
+	$self->{csv_xs}->fields;
 }
 
 =pod
