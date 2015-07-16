@@ -118,6 +118,7 @@ SCOPE: {
 		'->fetch returns as expected',
 	);
 
+	# TODO string() should not be expected to return data here, according to the Text::CSV_XS docs.
 	my $line = $csv->string; 
 	chomp($line); # $csv->string has linefeed
 	is( $line,"this,is,also,a,sample",'->string() works');
