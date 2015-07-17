@@ -13,7 +13,7 @@ Parse::CSV - Highly flexible CSV parser for large files
   my $simple = Parse::CSV->new(
       file => 'file.csv',
   );
-  
+
   while ( my $array_ref = $simple->fetch ) {
      # Do something...
   }
@@ -29,10 +29,10 @@ Parse::CSV - Highly flexible CSV parser for large files
       names      => 1,
       filter     => sub { My::Object->new( $_ ) },
   );
-  
+
   while ( my $object = $objects->fetch ) {
       $object->do_something;
-  } 
+  }
 
 =head1 DESCRIPTION
 
@@ -449,7 +449,7 @@ sub fields {
 
   # Get the current column names in use
   my @names = $csv->names;
-  
+
   # Change the column names on the fly mid stream
   $csv->names( 'fn1', 'fn2' );
 
