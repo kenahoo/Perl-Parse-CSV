@@ -236,7 +236,7 @@ sub new {
 	# Handle automatic field names
 	if ( Params::Util::_STRING($self->{names}) and $self->{names} ) {
 		# Grab the first line
-		$self->{names} = $self->_getline;
+		$self->{names} = $self->getline;
 	}
 
 	# Check names
@@ -305,7 +305,7 @@ sub fetch {
 
 	# The filter can skip rows,
 	# iterate till we get something.
-	while ( my $row = $self->_getline ) {
+	while ( my $row = $self->getline ) {
 		# Turn the array ref into a hash if needed
 		my $rv;
 		if ( $self->{names} ) {
@@ -337,7 +337,20 @@ sub fetch {
 	return undef;
 }
 
-sub _getline {
+=head2 getline
+
+Returns the next line of the input as an array reference, without
+performing possible conversion to a hash, and without running any
+filters.  This is the routine that C<fetch()> uses internally to read
+its input.  It may be useful if you sometimes want to do filtering and
+sometimes don't, or sometimes want to do hash conversion and sometimes
+don't, or maybe you don't need either of those things and you just
+want to shave all the milliseconds off that you can (but then you
+might be better off just using C<Text::CSV> directly).
+
+=cut
+
+sub getline {
 	my $self = shift;
 	$self->{errstr} = '';
 
