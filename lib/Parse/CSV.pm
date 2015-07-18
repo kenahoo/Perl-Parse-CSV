@@ -61,7 +61,7 @@ B<Array Mode> - Parsing can be done in simple array mode, returning
 a reference to an array if the columns are not named.
 
 B<Hash Mode> - Parsing can be done in hash mode, putting the data into
-a hash and return a reference to it.
+a hash and returning a reference to it.
 
 B<Filter Capability> - All items returned can be passed through a
 custom filter. This filter can either modify the data on the fly,
@@ -69,20 +69,21 @@ or drop records you don't need.
 
 =head2 Writing Filters
 
-A L<Parse::CSV> filter is a subroutine reference that is passed the raw
-record as C<$_>, and should C<return> the alternative or modified record.
+A L<Parse::CSV> filter is a subroutine reference that is passed the
+original record as C<$_> (not as a function argument), and should
+C<return> the alternative or modified record.
 
-The null filter (does not modify or drop any records) looks like the
+A no-op filter (does not modify or drop any records) would look like the
 following.
 
-  sub { $_ };
+  sub { $_ }
 
-A filter which reversed the order of the columns (assuming the parser
+A filter that reversed the order of the columns (assuming the parser
 is in array mode) might look like the following.
 
-  sub { return [ reverse @$_ ] };
+  sub { [ reverse @$_ ] }
 
-To drop the record, you should return C<undef> from the filter. The
+To drop the record, return C<undef> from the filter. The
 parser will then keep pulling and parsing new records until one
 passes the filter.
 
@@ -95,6 +96,9 @@ To signal an error, throw an exception
       $_->{foo} =~ /bar/ or die "Assumption failed";
       return $_;
   }
+
+Feel free to modify C<$_> as a side-effect of your filter routine -
+this will have no effect on anything.
 
 =head1 METHODS
 
@@ -173,8 +177,8 @@ array references of the columns.
 The optional C<filter> param will be used to filter the records if
 provided. It should be a C<CODE> reference or any otherwise callable
 scalar, and each value parsed (either array reference or hash reference)
-will be passed to the filter to be changed or converted into an object,
-or whatever you wish.
+will be available to the filter as C<$_> to be changed or converted into an object,
+or whatever you wish.  See the L<Writing Filters> section for more details.
 
 =back
 
@@ -273,7 +277,7 @@ Returning C<undef> means either some part of the parsing and filtering
 process has resulted in an error, B<or> that the end of file has been
 reached.
 
-On receiving C<undef>, you should the C<errstr> method. If it is a null
+On receiving C<undef>, you should check the C<errstr> method. If it is an empty
 string you have reached the end of file. Otherwise the error message will
 be returned. Thus, the basic usage of L<Parse::CSV> will look like the
 following.

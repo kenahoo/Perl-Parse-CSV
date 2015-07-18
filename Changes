@@ -1,6 +1,8 @@
 Revision history for Perl extension Parse-CSV
 
 {{$NEXT}}
+
+2.04      2015-07-15 20:48:16 America/Chicago
 	- Fixed a regression that resulted in some failures in the
           Parse::CSV::Colnames distribution [Spotted by H.Merijn Brand]
 	- Deprecate calling fields()/string() after fetch() [bc5453f]
