@@ -359,6 +359,17 @@ sub getline {
 	$self->{errstr} = '';
 
 	my $row = $self->{csv_xs}->getline( $self->{handle} );
+
+	if (!$row && 0+$self->{csv_xs}->error_diag) {
+		my $err = "".$self->{csv_xs}->error_diag;
+		# We need to propagate errors from Text::CSV_XS, but
+		# eof is also reported as an error. So we are going to
+		# filter out it as a special case.
+		if (!eof $self->{handle} || $err !~ /^EOF/) {
+			$self->{errstr} = $err;
+		}
+	}
+
 	$self->{row}++ if defined $row;
 	$self->{savedrow} = $row;
 	return $row;

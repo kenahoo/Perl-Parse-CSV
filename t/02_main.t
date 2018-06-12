@@ -8,7 +8,7 @@ BEGIN {
 	$^W = 1;
 }
 
-use Test::More tests => 83;
+use Test::More tests => 87;
 use File::Spec::Functions ':ALL';
 use Parse::CSV;
 
@@ -18,6 +18,8 @@ ok( -f $readfile, "$readfile exists" );
 my $readfile2 = catfile( 't', 'data', 'newlines.csv' );
 ok( -f $readfile2, "$readfile2 exists" );
 
+my $malformed_file = catfile( 't', 'data', 'malformed.csv' );
+ok( -f $malformed_file, "$malformed_file exists" );
 
 
 
@@ -288,4 +290,21 @@ SCOPE: {
 	is( $fetch2, undef, '->fetch returns undef' );
 	is( $csv->row,    3,  '->row returns 3' );
 	is( $csv->errstr, '', '->errstr returns ""' );
+}
+
+#####################################################################
+# Errors from Text::CSV_XS are properly propagated
+
+SCOPE: {
+	my $csv = Parse::CSV->new(
+		file => $malformed_file,
+	);
+
+	my $fetch1 = $csv->fetch;
+	is_deeply( $fetch1, [ qw{1 2 3} ], '->fetch returns non-malformed line' );
+
+
+	my $fetch2 = $csv->fetch;
+	ok !defined($fetch2), "->fetch returns 'undef' on malformed line";
+	like $csv->errstr, qr/EIQ - Quoted field not terminated/, "->errstr returns proper error from Text::CSV_XS";
 }

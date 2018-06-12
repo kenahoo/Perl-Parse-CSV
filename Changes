@@ -1,6 +1,8 @@
 Revision history for Perl extension Parse-CSV
 
 {{$NEXT}}
+	- Fix error handling to be able to distinguish eof from a real
+	  error
 
 2.04      2015-07-15 20:48:16 America/Chicago
 	- Fixed a regression that resulted in some failures in the
