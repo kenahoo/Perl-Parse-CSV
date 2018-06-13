@@ -15,7 +15,7 @@ one,two,three,four
 EOF
 
   open my $fh, '<', \$data or die $!;
-  my $csv = Text::CSV_XS->new({binary =>1});
+  my $csv = Text::CSV_XS->new({binary =>1, decode_utf8 => undef});
   isa_ok( $csv, 'Text::CSV_XS' );
 
   my $row = $csv->getline($fh);
@@ -37,7 +37,7 @@ one,two,three,four
 EOF
 
   open my $fh, '<', \$data or die $!;
-  my $csv = Parse::CSV->new( handle => $fh );
+  my $csv = Parse::CSV->new( handle => $fh, csv_attr => { binary => 1, decode_utf8 => undef });
   isa_ok( $csv, 'Parse::CSV' );
 
   my $row = $csv->fetch;
