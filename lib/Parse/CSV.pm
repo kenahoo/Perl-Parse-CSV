@@ -170,7 +170,13 @@ hash where the keys are the field names provided, and the values are the
 values found in the CSV file.
 
 If the C<names> param is B<not> provided, the parser will return simple
-array references of the columns.
+array references of the columns, treating them just like all the other
+rows in the file.
+
+If your CSV file has (or might have) a <Byte-Order Mark|https://en.wikipedia.org/wiki/Byte_order_mark>,
+you must use the C<names> functionality, because this lets us call the C<header>
+method of C<Text::CSV_XS>, which is the only place the BOM is handled
+in that module.
 
 =item C<filter>
 
@@ -240,7 +246,7 @@ sub new {
 	# Handle automatic field names
 	if ( Params::Util::_STRING($self->{names}) and $self->{names} ) {
 		# Grab the first line
-		$self->{names} = $self->getline;
+		$self->{names} = $self->getline(header=>1);
 	}
 
 	# Check names
@@ -356,9 +362,12 @@ might be better off just using C<Text::CSV> directly).
 
 sub getline {
 	my $self = shift;
+	my %attrs = @_;
 	$self->{errstr} = '';
 
-	my $row = $self->{csv_xs}->getline( $self->{handle} );
+	my $row = $attrs{header}
+		? [$self->{csv_xs}->header( $self->{handle} )]
+		: $self->{csv_xs}->getline( $self->{handle} );
 
 	if (!$row && 0+$self->{csv_xs}->error_diag) {
 		my $err = "".$self->{csv_xs}->error_diag;
