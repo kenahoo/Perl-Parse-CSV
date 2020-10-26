@@ -1,6 +1,8 @@
 Revision history for Perl extension Parse-CSV
 
 {{$NEXT}}
+
+2.05      2018-06-28 21:53:24-05:00 America/Chicago
 	- Fix error handling to be able to distinguish eof from a real
 	  error <Alexey Lebedeff>
         - Add failing test case for non-ASCII data <Ken Williams>
