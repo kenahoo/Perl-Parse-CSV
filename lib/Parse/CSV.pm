@@ -9,7 +9,7 @@ Parse::CSV - Highly flexible CSV parser for large files
 
 =head1 SYNOPSIS
 
-  # Simple headerless comma-seperated column parser
+  # Simple headerless comma-separated column parser
   my $simple = Parse::CSV->new(
       file => 'file.csv',
   );
@@ -20,7 +20,7 @@ Parse::CSV - Highly flexible CSV parser for large files
 
 ... or a more complex example...
 
-  # Parse a colon-seperated variables file  from a handle as a hash
+  # Parse a colon-separated variables file  from a handle as a hash
   # based on headers from the first line.
   # Then filter, so we emit objects rather than the plain hash.
   my $objects = Parse::CSV->new(
@@ -170,7 +170,13 @@ hash where the keys are the field names provided, and the values are the
 values found in the CSV file.
 
 If the C<names> param is B<not> provided, the parser will return simple
-array references of the columns.
+array references of the columns, treating them just like all the other
+rows in the file.
+
+If your CSV file has (or might have) a <Byte-Order Mark|https://en.wikipedia.org/wiki/Byte_order_mark>,
+you must use the C<names> functionality, because this lets us call the C<header>
+method of C<Text::CSV_XS>, which is the only place the BOM is handled
+in that module.
 
 =item C<filter>
 
@@ -178,7 +184,7 @@ The optional C<filter> param will be used to filter the records if
 provided. It should be a C<CODE> reference or any otherwise callable
 scalar, and each value parsed (either array reference or hash reference)
 will be available to the filter as C<$_> to be changed or converted into an object,
-or whatever you wish.  See the L<Writing Filters> section for more details.
+or whatever you wish.  See the L</Writing Filters> section for more details.
 
 =back
 
@@ -216,7 +222,7 @@ sub new {
 		Carp::croak("Parse::CSV not provided a file or handle param");
 	}
 
-	# Seperate the Text::CSV attributes
+	# Separate the Text::CSV attributes
 	unless ( Params::Util::_HASH0($self->{csv_attr}) ) {
 		$self->{csv_attr} = {binary => 1};  # Suggested by Text::CSV_XS docs to always be on
 		# XXX it would be nice to not have this list hard-coded.
@@ -240,7 +246,7 @@ sub new {
 	# Handle automatic field names
 	if ( Params::Util::_STRING($self->{names}) and $self->{names} ) {
 		# Grab the first line
-		$self->{names} = $self->getline;
+		$self->{names} = $self->getline(header=>1);
 	}
 
 	# Check names
@@ -292,13 +298,13 @@ following.
       # Handle errors...
   }
 
-NOTE: currently the L<fields> and L<string> methods can be used to
+NOTE: currently the L</fields> and L</string> methods can be used to
 access the most recently-read row (as an array ref or a formatted
-string) after using C<fetch>.  However, this contradicts the
+string) after using C</fetch>.  However, this contradicts the
 documentation for L<Text::CSV_XS>, which says those methods should be
 "meaningless" after calling C<getline> (which C<fetch()> internally
 uses to read the input).  Keeping the current behavior also incurs a
-speed & memory penalty.  Therefore, relying on L<fields> and L<string>
+speed & memory penalty.  Therefore, relying on L</fields> and L</string>
 to return the current data after C<fetch()> is deprecated and will
 (probably) be removed in a future release.
 
@@ -356,9 +362,12 @@ might be better off just using C<Text::CSV> directly).
 
 sub getline {
 	my $self = shift;
+	my %attrs = @_;
 	$self->{errstr} = '';
 
-	my $row = $self->{csv_xs}->getline( $self->{handle} );
+	my $row = $attrs{header}
+		? [$self->{csv_xs}->header( $self->{handle} )]
+		: $self->{csv_xs}->getline( $self->{handle} );
 
 	if (!$row && 0+$self->{csv_xs}->error_diag) {
 		my $err = "".$self->{csv_xs}->error_diag;
@@ -415,10 +424,10 @@ sub combine {
 The C<string> method is provided as a convenience, and is passed through
 to the underlying L<Text::CSV_XS> object.
 
-NOTE: relying on L<string> to return the current data after C<fetch()>
+NOTE: relying on L</string> to return the current data after C<fetch()>
 is deprecated and will (probably) be removed in a future release.
 Only rely on its value after C<combine()>.  See similar warnings in
-L<fetch()> and L<fields()>.
+L</fetch> and L</fields>.
 
 =cut
 
@@ -458,7 +467,7 @@ to the underlying L<Text::CSV_XS> object. It shows the actual row as an array.
 NOTE: relying on L<fields> to return the current data after C<fetch()>
 is deprecated and will (probably) be removed in a future release.
 Only rely on its value after C<combine()>.  See similar warnings in
-L<fetch()> and L<string()>.
+L</fetch> and L</string>.
 
 =cut
 
