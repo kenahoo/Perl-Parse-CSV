@@ -1,6 +1,7 @@
 Revision history for Perl extension Parse-CSV
 
 {{$NEXT}}
+    - Bump Text::CSV_XS dependency to 1.22, to get the header() method
 
 2.06      Sat Oct 31 21:59:18 CDT 2020
     - Handle Byte Order Marks in files [Suggested by Peter Sergeant]
