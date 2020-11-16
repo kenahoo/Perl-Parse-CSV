@@ -107,7 +107,7 @@ this will have no effect on anything.
 use 5.005;
 use Carp              ();
 use IO::File     1.13 ();
-use Text::CSV_XS 0.80 ();
+use Text::CSV_XS 1.22 ();
 use Params::Util 1.00 ();
 
 
