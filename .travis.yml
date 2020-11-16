@@ -3,3 +3,5 @@ perl:
   - "5.30"
   - "5.28"
   - "5.26"
+after_install:
+  - cat /home/travis/.cpanm/work/*/build.log
