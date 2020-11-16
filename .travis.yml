@@ -3,5 +3,5 @@ perl:
   - "5.30"
   - "5.28"
   - "5.26"
-after_failure:
-  - cat /home/travis/.cpanm/work/*/build.log
+install:
+  - cpanm --quiet --installdeps --notest . || cat /home/travis/.cpanm/work/*/build.log
