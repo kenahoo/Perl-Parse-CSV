@@ -178,6 +178,8 @@ you must use the C<names> functionality, because this lets us call the C<header>
 method of C<Text::CSV_XS>, which is the only place the BOM is handled
 in that module.
 
+If a C<munge_column_names> param is provided, it will be passed to C<Text::CSV_XS>'s C<header> method.
+
 =item C<filter>
 
 The optional C<filter> param will be used to filter the records if
@@ -365,8 +367,9 @@ sub getline {
 	my %attrs = @_;
 	$self->{errstr} = '';
 
+        my $munge_column_names = $self->{munge_column_names} || $self->{munge} || "none";
 	my $row = $attrs{header}
-		? [$self->{csv_xs}->header( $self->{handle} )]
+		? [$self->{csv_xs}->header( $self->{handle}, { munge_column_names => $munge_column_names } )]
 		: $self->{csv_xs}->getline( $self->{handle} );
 
 	if (!$row && 0+$self->{csv_xs}->error_diag) {
