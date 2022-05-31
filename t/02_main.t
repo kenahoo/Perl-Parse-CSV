@@ -8,7 +8,7 @@ BEGIN {
 	$^W = 1;
 }
 
-use Test::More tests => 87;
+use Test::More tests => 108;
 use File::Spec::Functions ':ALL';
 use Parse::CSV;
 
@@ -21,7 +21,8 @@ ok( -f $readfile2, "$readfile2 exists" );
 my $malformed_file = catfile( 't', 'data', 'malformed.csv' );
 ok( -f $malformed_file, "$malformed_file exists" );
 
-
+my $header_file = catfile( 't', 'data', 'header_file.csv' );
+ok( -f $header_file, "$header_file exists" );
 
 #####################################################################
 # Parsing a basic file in array ref mode
@@ -307,4 +308,68 @@ SCOPE: {
 	my $fetch2 = $csv->fetch;
 	ok !defined($fetch2), "->fetch returns 'undef' on malformed line";
 	like $csv->errstr, qr/EIQ - Quoted field not terminated/, "->errstr returns proper error from Text::CSV_XS";
+}
+
+#####################################################################
+# Test header
+# Preserves case
+SCOPE: {
+	my $csv = Parse::CSV->new(
+		file  => $header_file,
+		names => 1,
+	);
+	isa_ok( $csv, 'Parse::CSV' );
+	is( $csv->row,    1,  '->row returns 1' );
+	is( $csv->errstr, '', '->errstr returns ""' );
+	is_deeply(
+		[ $csv->names ],
+		[ qw{Field1 fIeld2 FIELD3 field4} ],
+		'->names ok',
+	);
+	# Get the first line
+	my $fetch1 = $csv->fetch;
+	is( $csv->row,    2,  '->row returns 2' );
+	is( $csv->errstr, '', '->errstr returns ""' );
+	is_deeply(
+		$fetch1,
+		{ Field1 => 1, fIeld2 => 2, FIELD3 => 3, field4 => 4 },
+		'->fetch returns as expected',
+	);
+
+	# Get the line after the end
+	my $fetch2 = $csv->fetch;
+	is( $fetch2, undef, '->fetch returns undef' );
+	is( $csv->row,    2,  '->row returns 2' );
+	is( $csv->errstr, '', '->errstr returns ""' );
+}
+# munge_column_names gets passed through
+SCOPE: {
+	my $csv = Parse::CSV->new(
+		file  => $header_file,
+		names => 1,
+                munge_column_names => 'lc'
+	);
+	isa_ok( $csv, 'Parse::CSV' );
+	is( $csv->row,    1,  '->row returns 1' );
+	is( $csv->errstr, '', '->errstr returns ""' );
+	is_deeply(
+		[ $csv->names ],
+		[ qw{field1 field2 field3 field4} ],
+		'->names ok',
+	);
+	# Get the first line
+	my $fetch1 = $csv->fetch;
+	is( $csv->row,    2,  '->row returns 2' );
+	is( $csv->errstr, '', '->errstr returns ""' );
+	is_deeply(
+		$fetch1,
+		{ field1 => 1, field2 => 2, field3 => 3, field4 => 4 },
+		'->fetch returns as expected',
+	);
+
+	# Get the line after the end
+	my $fetch2 = $csv->fetch;
+	is( $fetch2, undef, '->fetch returns undef' );
+	is( $csv->row,    2,  '->row returns 2' );
+	is( $csv->errstr, '', '->errstr returns ""' );
 }
