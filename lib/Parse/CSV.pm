@@ -228,7 +228,7 @@ sub new {
 	unless ( Params::Util::_HASH0($self->{csv_attr}) ) {
 		$self->{csv_attr} = {binary => 1};  # Suggested by Text::CSV_XS docs to always be on
 		# XXX it would be nice to not have this list hard-coded.
-		foreach ( qw{quote_char eol escape_char sep_char binary always_quote} ) {
+		foreach ( qw{quote_char eol escape_char sep_char binary always_quote allow_loose_quotes} ) {
 			next unless exists $self->{$_};
 			$self->{csv_attr}->{$_} = delete $self->{$_};
 		}
